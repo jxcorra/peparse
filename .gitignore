@@ -1,0 +1,6 @@
+# binaries
+cmd/peparse/main
+cmd/peparse/peparse
+
+# configuration
+cmd/peparse/configuration.json
