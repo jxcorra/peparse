@@ -1,16 +1,16 @@
-##Dumb thing which periodically parse everything you've specified in configuration
+Dumb thing which periodically parse everything you've specified in configuration
 
-####Build darwin
+Build darwin
 ```
 GOOS=darwin go build -ldflags="-s -w" -o cmd/peparse/main cmd/peparse/main.go
 ```
 
-####Build linux
+Build linux
 ```
 GOOS=linux go build -ldflags="-s -w" -o cmd/peparse/main cmd/peparse/main.go
 ```
 
-###Configuration structure
+Configuration structure
 
 - `resources` array - resource objects for parallel parse
 ```
