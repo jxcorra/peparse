@@ -39,7 +39,7 @@ Configuration structure
 }
 ```
 
-###Run
+Run
 ```
 ./cmd/peparse/main -help
 ```
