@@ -69,7 +69,7 @@ func parseAttrs(tokenizer *html.Tokenizer, hasAttr bool) map[string]string {
 
 func fillParsedData(tag []byte, schema *[]common.Search, data *common.Parsed, attrs *map[string]string) {
 	for _, search := range *schema {
-		if search.Key.Element != nil && *search.Key.Element == string(tag) {
+		if search.Key.Element == string(tag) {
 			if search.Key.Class != nil {
 				class, found := (*attrs)["class"]
 				if !found || *search.Key.Class != class {

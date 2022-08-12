@@ -1,7 +1,7 @@
 package common
 
 type Key struct {
-	Element *string `json:"element"`
+	Element string  `json:"element"`
 	Class   *string `json:"class"`
 }
 
