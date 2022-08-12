@@ -2,6 +2,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"io/ioutil"
+	"os"
 
 	common "github.com/jxcorra/peparse/internal/common"
 	config "github.com/jxcorra/peparse/internal/config"
@@ -23,7 +26,18 @@ func main() {
 	tasks := make(chan common.ResourceConfig, numOfWorkers)
 	output := make(chan common.Parsed, numOfWorkers)
 
-	resources, err := config.ParseConfiguration(configuration)
+	file, err := os.Open(configuration)
+	if err != nil {
+		panic(fmt.Errorf("no such file %s", configuration))
+	}
+	defer file.Close()
+
+	configData, err := ioutil.ReadAll(file)
+	if err != nil {
+		panic(fmt.Errorf("data from file %s cannot be read", configuration))
+	}
+
+	resources, err := config.ParseConfiguration(configData)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -31,7 +45,7 @@ func main() {
 	parameters := common.Parameters{
 		Period:       period,
 		NumOfWorkers: numOfWorkers,
-		Resources:    resources,
+		Resources:    &resources,
 		Tasks:        tasks,
 		Output:       output,
 	}

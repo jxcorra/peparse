@@ -7,7 +7,6 @@ type Key struct {
 
 type Item struct {
 	Attribute *string `json:"attr"`
-	Text      *string `json:"text"`
 }
 
 type Search struct {

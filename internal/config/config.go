@@ -3,29 +3,16 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"os"
 
 	common "github.com/jxcorra/peparse/internal/common"
 )
 
-func ParseConfiguration(configPath string) (*common.Resources, error) {
-	file, err := os.Open(configPath)
-	if err != nil {
-		return nil, fmt.Errorf("no such file %s", configPath)
-	}
-	defer file.Close()
-
-	data, err := ioutil.ReadAll(file)
-	if err != nil {
-		return nil, fmt.Errorf("data from file %s cannot be read", configPath)
-	}
-
+func ParseConfiguration(configData []byte) (common.Resources, error) {
 	var resources common.Resources
-	err = json.Unmarshal(data, &resources)
+	err := json.Unmarshal(configData, &resources)
 	if err != nil {
-		return nil, fmt.Errorf("content from %s cannot be serialized", configPath)
+		return common.Resources{}, fmt.Errorf("configuration content cannot be serialized")
 	}
 
-	return &resources, nil
+	return resources, nil
 }
