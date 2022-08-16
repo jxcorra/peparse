@@ -18,10 +18,19 @@ func RunPeriodicTask(parameters common.Parameters) {
 
 	go printer(parameters.Output)
 
-	for range time.Tick(time.Millisecond * time.Duration(parameters.Period)) {
-		for _, resource := range parameters.Resources.Resources {
-			parameters.Tasks <- resource
+	ticker := time.NewTicker(time.Millisecond * time.Duration(parameters.Period))
+
+	for {
+		select {
+		case <-ticker.C:
+			for _, resource := range parameters.Resources.Resources {
+				parameters.Tasks <- resource
+			}
+		case <-parameters.Done:
+			close(parameters.Tasks)
+			return
 		}
+
 	}
 }
 

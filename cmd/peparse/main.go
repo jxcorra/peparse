@@ -6,9 +6,10 @@ import (
 	"io/ioutil"
 	"os"
 
-	common "github.com/jxcorra/peparse/internal/common"
-	config "github.com/jxcorra/peparse/internal/config"
-	worker "github.com/jxcorra/peparse/internal/worker"
+	"github.com/jxcorra/peparse/internal/common"
+	"github.com/jxcorra/peparse/internal/config"
+	"github.com/jxcorra/peparse/internal/status"
+	"github.com/jxcorra/peparse/internal/worker"
 )
 
 func main() {
@@ -42,12 +43,16 @@ func main() {
 		panic(err.Error())
 	}
 
+	done := make(chan bool, 1)
+	go status.WatchDone(done)
+
 	parameters := common.Parameters{
 		Period:       period,
 		NumOfWorkers: numOfWorkers,
 		Resources:    &resources,
 		Tasks:        tasks,
 		Output:       output,
+		Done:         done,
 	}
 
 	worker.RunPeriodicTask(parameters)

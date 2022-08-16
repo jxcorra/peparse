@@ -43,4 +43,5 @@ type Parameters struct {
 	Resources    *Resources
 	Tasks        chan ResourceConfig
 	Output       chan Parsed
+	Done         chan bool
 }
