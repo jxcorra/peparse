@@ -1,5 +1,7 @@
 package common
 
+import "sync"
+
 type Key struct {
 	Element string  `json:"element"`
 	Class   *string `json:"class"`
@@ -37,11 +39,18 @@ func (di *DataItem) GetData() map[string]string {
 
 type Parsed []DataItem
 
+type Communication struct {
+	Done        chan bool
+	WorkerDone  chan bool
+	PrinterDone chan bool
+}
+
 type Parameters struct {
-	Period       int
-	NumOfWorkers int
-	Resources    *Resources
-	Tasks        chan ResourceConfig
-	Output       chan Parsed
-	Done         chan bool
+	Period        int
+	NumOfWorkers  int
+	Resources     *Resources
+	Tasks         chan ResourceConfig
+	Output        chan Parsed
+	Communication Communication
+	Wg            *sync.WaitGroup
 }

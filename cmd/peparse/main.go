@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sync"
 
 	"github.com/jxcorra/peparse/internal/common"
 	"github.com/jxcorra/peparse/internal/config"
@@ -43,17 +44,21 @@ func main() {
 		panic(err.Error())
 	}
 
-	done := make(chan bool, 1)
-	go status.WatchDone(done)
+	var wg sync.WaitGroup
+	communication := config.NewCommunication(numOfWorkers)
+
+	go status.WatchDone(communication.Done, &wg)
 
 	parameters := common.Parameters{
-		Period:       period,
-		NumOfWorkers: numOfWorkers,
-		Resources:    &resources,
-		Tasks:        tasks,
-		Output:       output,
-		Done:         done,
+		Period:        period,
+		NumOfWorkers:  numOfWorkers,
+		Resources:     &resources,
+		Tasks:         tasks,
+		Output:        output,
+		Communication: communication,
+		Wg:            &wg,
 	}
 
 	worker.RunPeriodicTask(parameters)
+	wg.Wait()
 }

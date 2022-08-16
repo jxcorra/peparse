@@ -3,6 +3,7 @@ package worker
 import (
 	"fmt"
 	"net/http"
+	"sync"
 	"time"
 
 	"golang.org/x/net/html"
@@ -13,10 +14,12 @@ import (
 
 func RunPeriodicTask(parameters common.Parameters) {
 	for i := 0; i < parameters.NumOfWorkers; i++ {
-		go worker(parameters.Tasks, parameters.Output)
+		parameters.Wg.Add(1)
+		go worker(parameters.Tasks, parameters.Output, parameters.Wg, &parameters.Communication)
 	}
 
-	go printer(parameters.Output)
+	parameters.Wg.Add(1)
+	go printer(parameters.Output, parameters.Wg, &parameters.Communication)
 
 	ticker := time.NewTicker(time.Millisecond * time.Duration(parameters.Period))
 
@@ -26,41 +29,67 @@ func RunPeriodicTask(parameters common.Parameters) {
 			for _, resource := range parameters.Resources.Resources {
 				parameters.Tasks <- resource
 			}
-		case <-parameters.Done:
-			close(parameters.Tasks)
+		case <-parameters.Communication.Done:
+			for i := 0; i < parameters.NumOfWorkers; i++ {
+				parameters.Communication.WorkerDone <- true
+			}
+			parameters.Communication.PrinterDone <- true
 			return
 		}
 
 	}
 }
 
-func worker(communication chan common.ResourceConfig, output chan common.Parsed) {
-	for resource := range communication {
-		response, err := http.Get(resource.Url)
-		if err != nil {
-			fmt.Printf("cannot get %s", resource.Url)
-			continue
+func worker(resources chan common.ResourceConfig, output chan common.Parsed, wg *sync.WaitGroup, communication *common.Communication) {
+	defer wg.Done()
+	for {
+		select {
+		case resource, more := <-resources:
+			if !more {
+				return
+			}
+			response, err := http.Get(resource.Url)
+			if err != nil {
+				fmt.Printf("cannot get %s", resource.Url)
+				continue
+			}
+
+			tokenizer := html.NewTokenizer(response.Body)
+			data, err := parse.ParsePage(tokenizer, &resource.Search)
+			response.Body.Close()
+
+			if err != nil {
+				fmt.Printf("%s %s", resource.Url, err.Error())
+				continue
+			}
+
+			output <- data
+		case workerDone := <-communication.WorkerDone:
+			if workerDone {
+				return
+			}
 		}
-
-		tokenizer := html.NewTokenizer(response.Body)
-		data, err := parse.ParsePage(tokenizer, &resource.Search)
-		response.Body.Close()
-
-		if err != nil {
-			fmt.Printf("%s %s", resource.Url, err.Error())
-			continue
-		}
-
-		output <- data
 	}
 }
 
-func printer(output chan common.Parsed) {
-	for message := range output {
-		serialized, err := parse.Serialize(&message)
-		if err != nil {
-			fmt.Println(fmt.Errorf(err.Error()))
+func printer(output chan common.Parsed, wg *sync.WaitGroup, communication *common.Communication) {
+	defer wg.Done()
+	for {
+		select {
+		case message, more := <-output:
+			if !more {
+				return
+			}
+			serialized, err := parse.Serialize(&message)
+			if err != nil {
+				fmt.Println(fmt.Errorf(err.Error()))
+			}
+			fmt.Println(serialized)
+		case printerDone := <-communication.PrinterDone:
+			if printerDone {
+				return
+			}
 		}
-		fmt.Println(serialized)
+
 	}
 }
