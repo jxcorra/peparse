@@ -7,7 +7,7 @@ import (
 	"syscall"
 )
 
-func WatchDone(communication chan bool, wg *sync.WaitGroup) {
+func WatchTermination(communication chan bool, wg *sync.WaitGroup) {
 	wg.Add(1)
 
 	sigs := make(chan os.Signal, 1)

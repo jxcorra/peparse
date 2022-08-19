@@ -25,9 +25,6 @@ func main() {
 
 	flag.Parse()
 
-	tasks := make(chan common.ResourceConfig, numOfWorkers)
-	output := make(chan common.Parsed, numOfWorkers)
-
 	file, err := os.Open(configuration)
 	if err != nil {
 		panic(fmt.Errorf("no such file %s", configuration))
@@ -44,11 +41,12 @@ func main() {
 		panic(err.Error())
 	}
 
-	var wg sync.WaitGroup
+	tasks := make(chan common.ResourceConfig, numOfWorkers)
+	output := make(chan common.Parsed, numOfWorkers)
+
 	communication := config.NewCommunication(numOfWorkers)
 
-	go status.WatchDone(communication.Done, &wg)
-
+	var wg sync.WaitGroup
 	parameters := common.Parameters{
 		Period:        period,
 		NumOfWorkers:  numOfWorkers,
@@ -58,6 +56,8 @@ func main() {
 		Communication: communication,
 		Wg:            &wg,
 	}
+
+	go status.WatchTermination(communication.Done, &wg)
 
 	worker.RunPeriodicTask(parameters)
 	wg.Wait()
