@@ -16,13 +16,35 @@ jobs:
         with:
           go-version: '1.20.7'
           cache: false
-      - name: test
-        run: go test -v -race ./...
-      - name: coverage report
-        uses: ncruces/go-coverage-report@v0
+      - uses: actions/cache@v2
         with:
-          report: 'false'
-          chart: 'false'
-          amend: 'true'
-          reuse-go: 'true'
-        continue-on-error: true
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: test
+        run: |
+          go test -v -race ./... -covermode=count -coverprofile=coverage.out
+          go tool cover -func=coverage.out -o=coverage.out
+      - name: go coverage badge
+        uses: tj-actions/coverage-badge-go@v2
+        with:
+          filename: coverage.out
+      - name: verify Changed files
+        uses: tj-actions/verify-changed-files@v12
+        id: verify-changed-files
+        with:
+          files: README.md
+      - name: commit changes
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add README.md
+          git commit -m "chore: Updated coverage badge."
+      - name: push changes
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ github.token }}
+          branch: ${{ github.head_ref }}
