@@ -1,10 +1,9 @@
-Dumb thing which periodically parse everything you've specified in configuration
 ![Coverage](https://img.shields.io/badge/Coverage-80.0%25-brightgreen)
-
 ![lint](https://github.com/jxcorra/peparse/actions/workflows/lint.yaml/badge.svg)
 ![build](https://github.com/jxcorra/peparse/actions/workflows/build.yaml/badge.svg)
 ![tests](https://github.com/jxcorra/peparse/actions/workflows/test.yaml/badge.svg)
-![cov](https://github.com/jxcorra/peparse/wiki/coverage.svg)
+
+Dumb thing which periodically parse everything you've specified in configuration
 
 Build darwin
 ```
