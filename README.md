@@ -1,5 +1,9 @@
 Dumb thing which periodically parse everything you've specified in configuration
 
+![lint](https://github.com/jxcorra/peparse/actions/workflows/lint.yaml/badge.svg)
+![build](https://github.com/jxcorra/peparse/actions/workflows/build.yaml/badge.svg)
+![tests](https://github.com/jxcorra/peparse/actions/workflows/test.yaml/badge.svg)
+
 Build darwin
 ```
 GOOS=darwin go build -ldflags="-s -w" -o cmd/peparse/main cmd/peparse/main.go
