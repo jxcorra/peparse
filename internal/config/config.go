@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	common "github.com/jxcorra/peparse/internal/common"
 )
@@ -41,14 +42,16 @@ func ParseConfiguration(configData []byte) (common.Resources, error) {
 	return resources, nil
 }
 
-func NewCommunication(numOfWorkers int) common.Communication {
+func NewCommunication(numOfWorkers int) *common.Communication {
 	done := make(chan bool, 1)
 	printerDone := make(chan bool, 1)
 	workersDone := make(chan bool, numOfWorkers)
+	signals := make(chan os.Signal, 1)
 
-	return common.Communication{
-		Done: done,
+	return &common.Communication{
+		Done:        done,
 		PrinterDone: printerDone,
-		WorkerDone: workersDone,
+		WorkerDone:  workersDone,
+		Signals:     signals,
 	}
 }

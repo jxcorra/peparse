@@ -1,10 +1,12 @@
 package status_test
 
 import (
+	"os/signal"
 	"sync"
 	"syscall"
 	"testing"
 
+	"github.com/jxcorra/peparse/internal/config"
 	"github.com/jxcorra/peparse/internal/status"
 )
 
@@ -26,8 +28,12 @@ func TestWatchTermination(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		done := make(chan bool, 1)
+		communication := config.NewCommunication(1)
+		signal.Notify(communication.Signals, syscall.SIGINT, syscall.SIGTERM)
 		var wg sync.WaitGroup
+
+		wg.Add(1)
+		go status.WatchTermination(communication, &wg)
 
 		wg.Add(1)
 		go func() {
@@ -38,10 +44,9 @@ func TestWatchTermination(t *testing.T) {
 			}
 		}()
 
-		status.WatchTermination(done, &wg)
 		wg.Wait()
 
-		if len(done) != 1 {
+		if len(communication.Done) != 1 {
 			t.Errorf("not done with signal `%s`", testCase.signalStr)
 		}
 	}

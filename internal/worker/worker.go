@@ -15,11 +15,11 @@ import (
 func RunPeriodicTask(parameters common.Parameters) {
 	for i := 0; i < parameters.NumOfWorkers; i++ {
 		parameters.Wg.Add(1)
-		go worker(parameters.Tasks, parameters.Output, parameters.Wg, &parameters.Communication)
+		go worker(parameters.Tasks, parameters.Output, parameters.Wg, parameters.Communication)
 	}
 
 	parameters.Wg.Add(1)
-	go printer(parameters.Output, parameters.Wg, &parameters.Communication)
+	go printer(parameters.Output, parameters.Wg, parameters.Communication)
 
 	ticker := time.NewTicker(time.Millisecond * time.Duration(parameters.Period))
 

@@ -1,6 +1,9 @@
 package common
 
-import "sync"
+import (
+	"os"
+	"sync"
+)
 
 type Key struct {
 	Element string  `json:"element"`
@@ -43,6 +46,7 @@ type Communication struct {
 	Done        chan bool
 	WorkerDone  chan bool
 	PrinterDone chan bool
+	Signals     chan os.Signal
 }
 
 type Parameters struct {
@@ -51,6 +55,6 @@ type Parameters struct {
 	Resources     *Resources
 	Tasks         chan ResourceConfig
 	Output        chan Parsed
-	Communication Communication
+	Communication *Communication
 	Wg            *sync.WaitGroup
 }

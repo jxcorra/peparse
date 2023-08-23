@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 
 	"github.com/jxcorra/peparse/internal/common"
 	"github.com/jxcorra/peparse/internal/config"
@@ -57,8 +59,13 @@ func main() {
 		Wg:            &wg,
 	}
 
-	go status.WatchTermination(communication.Done, &wg)
+	signal.Notify(parameters.Communication.Signals, syscall.SIGINT, syscall.SIGTERM)
+
+	wg.Add(1)
+	go status.WatchTermination(parameters.Communication, &wg)
 
 	worker.RunPeriodicTask(parameters)
 	wg.Wait()
+
+	<-parameters.Communication.Done
 }

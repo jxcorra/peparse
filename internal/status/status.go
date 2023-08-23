@@ -1,19 +1,13 @@
 package status
 
 import (
-	"os"
-	"os/signal"
 	"sync"
-	"syscall"
+
+	"github.com/jxcorra/peparse/internal/common"
 )
 
-func WatchTermination(communication chan bool, wg *sync.WaitGroup) {
+func WatchTermination(communication *common.Communication, wg *sync.WaitGroup) {
 	defer wg.Done()
-	wg.Add(1)
-
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-
-	<-sigs
-	communication <- true
+	<-communication.Signals
+	communication.Done <- true
 }
