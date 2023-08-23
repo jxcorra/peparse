@@ -29,9 +29,16 @@ func TestWatchTermination(t *testing.T) {
 		done := make(chan bool, 1)
 		var wg sync.WaitGroup
 
-		go syscall.Kill(syscall.Getpid(), testCase.signal)
-		status.WatchTermination(done, &wg)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			err := syscall.Kill(syscall.Getpid(), testCase.signal)
+			if err != nil {
+				t.Errorf("error killing process %d", syscall.Getpid())
+			}
+		}()
 
+		status.WatchTermination(done, &wg)
 		wg.Wait()
 
 		if len(done) != 1 {
