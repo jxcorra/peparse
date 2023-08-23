@@ -4,3 +4,6 @@ cmd/peparse/peparse
 
 # configuration
 cmd/peparse/configuration.json
+
+# coverage
+coverage.out
