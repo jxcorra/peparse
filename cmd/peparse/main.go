@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"os/signal"
 	"sync"
@@ -33,7 +33,7 @@ func main() {
 	}
 	defer file.Close()
 
-	configData, err := ioutil.ReadAll(file)
+	configData, err := io.ReadAll(file)
 	if err != nil {
 		panic(fmt.Errorf("data from file %s cannot be read", configuration))
 	}
@@ -66,6 +66,4 @@ func main() {
 
 	worker.RunPeriodicTask(parameters)
 	wg.Wait()
-
-	<-parameters.Communication.Done
 }
