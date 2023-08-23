@@ -3,6 +3,7 @@ Dumb thing which periodically parse everything you've specified in configuration
 ![lint](https://github.com/jxcorra/peparse/actions/workflows/lint.yaml/badge.svg)
 ![build](https://github.com/jxcorra/peparse/actions/workflows/build.yaml/badge.svg)
 ![tests](https://github.com/jxcorra/peparse/actions/workflows/test.yaml/badge.svg)
+[![cov](https://github.com/jxcorra/peparse/wiki/coverage.svg)]
 
 Build darwin
 ```
